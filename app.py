@@ -16,13 +16,13 @@ def init_db():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXIST urls (
+    CREATE TABLE IF NOT EXISTS urls (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         short_code TEXT UNIQUE NOT NULL,
         long_url TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        clocks INTEGER DEFAULT 0
-        )
+        clicks INTEGER DEFAULT 0
+    )
     ''')
     conn.commit()
     conn.close()
