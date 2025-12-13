@@ -1,12 +1,23 @@
-from flask import Flask, request, jsonify, redirect, render_template
+from flask import Flask, request, jsonify, redirect, render_template, send_file
+import psycopg2
 import sqlite3
 import string
 import random
 import os
+import qrcode
+from io import BytesIO
 
 app = Flask(__name__)
 DATABASE = 'urls.db'
 DATABASE_URL = os.getenv('DATABASE_URL')
+
+# def get_db_connection():
+#     if DATABASE_URL:
+#         conn = psycopg2.connect(DATABASE_URL)
+#     else:
+#         conn = sqlite3.connect('urls.db')
+#         conn.row_factory = sqlite3.Row
+#     return conn
 
 # Generate short code
 def generate_short_code(length=6):
@@ -15,7 +26,7 @@ def generate_short_code(length=6):
 
 # Init DB
 def init_db():
-    conn = psycopg2.connect(DATABASE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS urls (
@@ -29,6 +40,30 @@ def init_db():
     conn.commit()
     conn.close()
 
+if os.getenv('DATABASE_URL'):
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if DATABASE_URL.startswitch('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgress://', 'postgresql://', 1)
+
+    import psycopg2
+    from urllib.parse import urlparse
+
+    result = urlparse(DATABASE_URL)
+
+    def get_db_connection():
+        return psycopg2.connect(
+            database=result.path[1:],
+            user=result.username,
+            password=result.hostname,
+            host=result.hostname,
+            port=result.port
+        )
+else:
+    import sqlite3
+    def get_db_connection():
+        return sqlite3.connect('urls.db')
+
+
 # API: Create short URL
 @app.route('/api/shorten', methods=['POST'])
 def shorten_url():
@@ -41,7 +76,7 @@ def shorten_url():
     # Generate code until we find one that is available
     while True:
         short_code = generate_short_code()
-        conn = psycopg2.connect(DATABASE)
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         try:
@@ -62,7 +97,7 @@ def shorten_url():
 # Redirect via short link
 @app.route('/<short_code>')
 def redirect_to_url(short_code):
-    conn = psycopg2.connect(DATABASE)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('SELECT long_url FROM urls WHERE short_code = ?', (short_code,))
@@ -82,7 +117,7 @@ def redirect_to_url(short_code):
 # API: Statistics via link
 @app.route('/api/stats/<short_code>')
 def get_stats(short_code):
-    conn = psycopg2.connect(DATABASE)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM urls WHERE short_code = ?', (short_code,))
@@ -102,6 +137,22 @@ def get_stats(short_code):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/qr/<short_code>')
+def generate_qr(short_code):
+    short_url = f"https://yoursite.com/{short_code}"
+
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(short_url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", black_color="white")
+
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+
+    return send_file(buf, mimetype='image/png')
 
 if __name__ == '__main__':
     init_db()
