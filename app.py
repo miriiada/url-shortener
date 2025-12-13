@@ -2,9 +2,11 @@ from flask import Flask, request, jsonify, redirect, render_template
 import sqlite3
 import string
 import random
+import os
 
 app = Flask(__name__)
 DATABASE = 'urls.db'
+DATABASE_URL = os.getenv('DATABASE_URL')
 
 # Generate short code
 def generate_short_code(length=6):
@@ -13,7 +15,7 @@ def generate_short_code(length=6):
 
 # Init DB
 def init_db():
-    conn = sqlite3.connect(DATABASE)
+    conn = psycopg2.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS urls (
@@ -39,14 +41,14 @@ def shorten_url():
     # Generate code until we find one that is available
     while True:
         short_code = generate_short_code()
-        conn = sqlite3.connect(DATABASE)
+        conn = psycopg2.connect(DATABASE)
         cursor = conn.cursor()
 
         try:
             cursor.execute('INSERT INTO urls (short_code, long_url) VALUES (?, ?)',(short_code, long_url))
             conn.commit()
             break
-        except sqlite3.IntegrityError:
+        except psycopg2.IntegrityError:
             continue # The code already exists, we are generation a new one
         finally:
             conn.close()
@@ -60,7 +62,7 @@ def shorten_url():
 # Redirect via short link
 @app.route('/<short_code>')
 def redirect_to_url(short_code):
-    conn = sqlite3.connect(DATABASE)
+    conn = psycopg2.connect(DATABASE)
     cursor = conn.cursor()
 
     cursor.execute('SELECT long_url FROM urls WHERE short_code = ?', (short_code,))
@@ -80,7 +82,7 @@ def redirect_to_url(short_code):
 # API: Statistics via link
 @app.route('/api/stats/<short_code>')
 def get_stats(short_code):
-    conn = sqlite3.connect(DATABASE)
+    conn = psycopg2.connect(DATABASE)
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM urls WHERE short_code = ?', (short_code,))
