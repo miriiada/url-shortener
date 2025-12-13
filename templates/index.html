@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; }
+        input { width: 100%; padding: 10px; font-size: 16px; }
+        button {padding: 10px 20px; background: #0366d6; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #f6f8fa; }
+    </style>
+</head>
+<body>
+    <h1>🔗 URL Shortener</h1>
+    <input type="text" id="longUrl" placeholder="Enter your long URL">
+    <button onclick="shortenUrl()">Shorten</button>
+
+    <div id="result" class="result" style="display:none;">
+        <p>Short URL: <a id="shortUrl" target="_blank"></a></p>
+        <button onclick="copyToClipboard()">Copy</button>
+    </div>
+
+    <script>
+        async function shortenUrl() {
+            const longUrl = document.getElementById('longUrl').value;
+
+            const response = await fetch('/api/shorten', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({url: longUrl})
+            });
+
+            const data = await response.json();
+
+            document.getElementById('shortUrl').href = data.short_url;
+            document.getElementById('shortUrl').textContent = data.short_url;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            const url = document.getElementById('shortUrl').textContent;
+            navigator.clipboard.writeText(url);
+            alert('Copied!');
+        }
+    </script>
+</body>
+</html>

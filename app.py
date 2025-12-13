@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, render_template
 import sqlite3
 import string
 import random
@@ -28,7 +28,7 @@ def init_db():
     conn.close()
 
 # API: Create short URL
-@app.route('/app/shorten', methods=['POST'])
+@app.route('/api/shorten', methods=['POST'])
 def shorten_url():
     data = request.get_json()
     long_url = data.get ('url')
@@ -43,7 +43,7 @@ def shorten_url():
         cursor = conn.cursor()
 
         try:
-            cursor.execute('INSERT INTO urls (short_code, long_uirl) VALUES (?, ?)',(short_code, long_url))
+            cursor.execute('INSERT INTO urls (short_code, long_url) VALUES (?, ?)',(short_code, long_url))
             conn.commit()
             break
         except sqlite3.IntegrityError:
@@ -69,7 +69,7 @@ def redirect_to_url(short_code):
     if result:
         long_url = result[0]
         #  Increasing the click counter
-        cursor.execute('UPDATE urls SET clicks + 1 WHERE short_code = ?', (short_code,))
+        cursor.execute('UPDATE urls SET clicks = clicks + 1 WHERE short_code = ?', (short_code,))
         conn.commit()
         conn.close()
         return redirect(long_url)
@@ -83,7 +83,7 @@ def get_stats(short_code):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM urls WEHERE short_code = ?', (short_code,))
+    cursor.execute('SELECT * FROM urls WHERE short_code = ?', (short_code,))
     result = cursor.fetchone()
     conn.close()
 
@@ -96,6 +96,10 @@ def get_stats(short_code):
         })
 
     return jsonify({'error': 'Not found'}), 404
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     init_db()
