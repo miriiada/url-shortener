@@ -42,7 +42,7 @@ def init_db():
 
 if os.getenv('DATABASE_URL'):
     DATABASE_URL = os.getenv('DATABASE_URL')
-    if DATABASE_URL.startswitch('postgres://'):
+    if DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgress://', 'postgresql://', 1)
 
     import psycopg2
