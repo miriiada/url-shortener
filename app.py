@@ -11,14 +11,6 @@ app = Flask(__name__)
 DATABASE = 'urls.db'
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-# def get_db_connection():
-#     if DATABASE_URL:
-#         conn = psycopg2.connect(DATABASE_URL)
-#     else:
-#         conn = sqlite3.connect('urls.db')
-#         conn.row_factory = sqlite3.Row
-#     return conn
-
 # Generate short code
 def generate_short_code(length=6):
     chars = string.ascii_letters + string.digits
@@ -54,7 +46,7 @@ if os.getenv('DATABASE_URL'):
         return psycopg2.connect(
             database=result.path[1:],
             user=result.username,
-            password=result.hostname,
+            password=result.password,
             host=result.hostname,
             port=result.port
         )
@@ -138,52 +130,52 @@ def get_stats(short_code):
 def index():
     return render_template('index.html')
 
-# @app.route('/api/qr/<short_code>')
-# def generate_qr(short_code):
-#     short_url = f"https://yoursite.com/{short_code}"
-#
-#     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-#     qr.add_data(short_url)
-#     qr.make(fit=True)
-#
-#     img = qr.make_image(fill_color="black", black_color="white")
-#
-#     buf = BytesIO()
-#     img.save(buf, format='PNG')
-#     buf.seek(0)
-#
-#     return send_file(buf, mimetype='image/png')
+@app.route('/api/qr/<short_code>')
+def generate_qr(short_code):
+    short_url = f"https://yoursite.com/{short_code}"
 
-# def init_db():
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#
-#     if os.getenv('DATABASE_URL'):
-#         cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS urls (
-#             id SERIAL PRIMARY KEY,
-#             short_code VARCHAR(10) UNIQUE NOT NULL,
-#             long_url TEXT NOT NULL,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#             clicks INTEGER DEFAULT 0
-#         )
-#         ''')
-#     else:
-#         cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS urls (
-#             id INTEGER PRIMART KEY AUTOINCRENENT,
-#             short_code TEXT UNIZUE NOT NULL,
-#             long_url TEXT NOT NULL,
-#             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-#             clicks INTEGER DEFAULT 0
-#         )
-#         ''')
-#
-#     conn.commit()
-#     conn.close()
-#
-# with app.app_context():
-#     init_db()
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(short_url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", black_color="white")
+
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+
+    return send_file(buf, mimetype='image/png')
+
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if os.getenv('DATABASE_URL'):
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS urls (
+            id SERIAL PRIMARY KEY,
+            short_code VARCHAR(10) UNIQUE NOT NULL,
+            long_url TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            clicks INTEGER DEFAULT 0
+        )
+        ''')
+    else:
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS urls (
+            id INTEGER PRIMART KEY AUTOINCRENENT,
+            short_code TEXT UNIZUE NOT NULL,
+            long_url TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            clicks INTEGER DEFAULT 0
+        )
+        ''')
+
+    conn.commit()
+    conn.close()
+
+with app.app_context():
+    init_db()
 
 if __name__ == '__main__':
     init_db()
