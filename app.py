@@ -163,8 +163,8 @@ def init_db():
     else:
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS urls (
-            id INTEGER PRIMART KEY AUTOINCRENENT,
-            short_code TEXT UNIZUE NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            short_code TEXT UNIQUE NOT NULL,
             long_url TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             clicks INTEGER DEFAULT 0
