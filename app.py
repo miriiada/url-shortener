@@ -154,36 +154,36 @@ def generate_qr(short_code):
 
     return send_file(buf, mimetype='image/png')
 
-def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if os.getenv('DATABASE_URL'):
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS urls (
-            id SERIAL PRIMARY KEY,
-            short_code VARCHAR(10) UNIQUE NOT NULL,
-            long_url TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            clicks INTEGER DEFAULT 0
-        )
-        ''')
-    else:
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS urls (
-            id INTEGER PRIMART KEY AUTOINCRENENT,
-            short_code TEXT UNIZUE NOT NULL,
-            long_url TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            clicks INTEGER DEFAULT 0
-        )
-        ''')
-
-    conn.commit()
-    conn.close()
-
-with app.app_context():
-    init_db()
+# def init_db():
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
+#
+#     if os.getenv('DATABASE_URL'):
+#         cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS urls (
+#             id SERIAL PRIMARY KEY,
+#             short_code VARCHAR(10) UNIQUE NOT NULL,
+#             long_url TEXT NOT NULL,
+#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#             clicks INTEGER DEFAULT 0
+#         )
+#         ''')
+#     else:
+#         cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS urls (
+#             id INTEGER PRIMART KEY AUTOINCRENENT,
+#             short_code TEXT UNIZUE NOT NULL,
+#             long_url TEXT NOT NULL,
+#             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+#             clicks INTEGER DEFAULT 0
+#         )
+#         ''')
+#
+#     conn.commit()
+#     conn.close()
+#
+# with app.app_context():
+#     init_db()
 
 if __name__ == '__main__':
     init_db()
