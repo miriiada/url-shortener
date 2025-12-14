@@ -81,7 +81,7 @@ def shorten_url():
             conn.close()
 
     return jsonify({
-        'short_url': f'http://localhost:5000/{short_code}',
+        'short_url': request.host_url + short_code,
         'short_code': short_code,
         'long_url': long_url
     }), 201
