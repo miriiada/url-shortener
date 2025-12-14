@@ -22,13 +22,15 @@ Transform long URLs into short, shareable links.
 
 ### Shorten URL
 POST /api/shorten
-{"url": "https://example.com/long-url"}
+
 
 ### Get Stats  
 GET /api/stats/:short_code
 
 ## 🖼️ Screenshots
-[Add screenshots]
+
+### Site preview
+![Console](screenshots/site_prev.png)
 
 ## 👤 Author
 [Miriiada] - [GitHub](https://github.com/miriiada)
