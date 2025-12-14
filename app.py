@@ -72,7 +72,7 @@ def shorten_url():
         cursor = conn.cursor()
 
         try:
-            cursor.execute('INSERT INTO urls (short_code, long_url) VALUES (?, ?)',(short_code, long_url))
+            cursor.execute('INSERT INTO urls (short_code, long_url) VALUES (%s, %s)',(short_code, long_url))
             conn.commit()
             break
         except psycopg2.IntegrityError:
@@ -92,13 +92,13 @@ def redirect_to_url(short_code):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT long_url FROM urls WHERE short_code = ?', (short_code,))
+    cursor.execute('SELECT long_url FROM urls WHERE short_code = %s', (short_code,))
     result = cursor.fetchone()
 
     if result:
         long_url = result[0]
         #  Increasing the click counter
-        cursor.execute('UPDATE urls SET clicks = clicks + 1 WHERE short_code = ?', (short_code,))
+        cursor.execute('UPDATE urls SET clicks = clicks + 1 WHERE short_code = %s', (short_code,))
         conn.commit()
         conn.close()
         return redirect(long_url)
@@ -112,7 +112,7 @@ def get_stats(short_code):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM urls WHERE short_code = ?', (short_code,))
+    cursor.execute('SELECT * FROM urls WHERE short_code = %s', (short_code,))
     result = cursor.fetchone()
     conn.close()
 
