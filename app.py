@@ -4,7 +4,7 @@ import sqlite3
 import string
 import random
 import os
-import qrcode
+# import qrcode
 from io import BytesIO
 
 app = Flask(__name__)
@@ -138,21 +138,21 @@ def get_stats(short_code):
 def index():
     return render_template('index.html')
 
-@app.route('/api/qr/<short_code>')
-def generate_qr(short_code):
-    short_url = f"https://yoursite.com/{short_code}"
-
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(short_url)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", black_color="white")
-
-    buf = BytesIO()
-    img.save(buf, format='PNG')
-    buf.seek(0)
-
-    return send_file(buf, mimetype='image/png')
+# @app.route('/api/qr/<short_code>')
+# def generate_qr(short_code):
+#     short_url = f"https://yoursite.com/{short_code}"
+#
+#     qr = qrcode.QRCode(version=1, box_size=10, border=5)
+#     qr.add_data(short_url)
+#     qr.make(fit=True)
+#
+#     img = qr.make_image(fill_color="black", black_color="white")
+#
+#     buf = BytesIO()
+#     img.save(buf, format='PNG')
+#     buf.seek(0)
+#
+#     return send_file(buf, mimetype='image/png')
 
 # def init_db():
 #     conn = get_db_connection()
