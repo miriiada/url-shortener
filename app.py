@@ -4,7 +4,7 @@ import sqlite3
 import string
 import random
 import os
-# import qrcode
+import qrcode
 from io import BytesIO
 
 app = Flask(__name__)
@@ -132,7 +132,7 @@ def index():
 
 @app.route('/api/qr/<short_code>')
 def generate_qr(short_code):
-    short_url = f"https://yoursite.com/{short_code}"
+    short_url = f"https://url-shortener-miriiada.onrender.com/{short_code}"
 
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(short_url)
