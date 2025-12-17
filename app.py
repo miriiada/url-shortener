@@ -6,6 +6,7 @@ import random
 import os
 import qrcode
 from io import BytesIO
+from sqlalchemy import create_engine, text
 
 app = Flask(__name__)
 DATABASE = 'urls.db'
